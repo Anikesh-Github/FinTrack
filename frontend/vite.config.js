@@ -2,8 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import dotenv from 'dotenv';
 
-// Load .env file
-dotenv.config();
+dotenv.config(); // Load local .env (optional, mostly for local dev)
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -15,15 +14,15 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target:
             mode === 'production'
-              ? process.env.VITE_API_URL // Use your deployed backend URL
-              : 'http://localhost:5000', // Local backend
+              ? process.env.VITE_API_URL // Use Netlify env variable in production
+              : 'http://localhost:5000',
           changeOrigin: true,
           secure: false,
         },
       },
     },
     build: {
-      outDir: 'dist', // This is the folder you will publish on Render
+      outDir: 'dist', // Make sure Netlify publish directory matches this
     },
   };
 });
