@@ -1,16 +1,15 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-
-// https://vitejs.dev/config/
+// vite.config.js
 export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
     proxy: {
       '/api': {
-        target: 'https://fintrack-backend1.onrender.com',
+        target: process.env.VITE_API_URL, // backend URL in Render
         changeOrigin: true,
         secure: false,
       },
     },
-  },})
+  },
+})
+
