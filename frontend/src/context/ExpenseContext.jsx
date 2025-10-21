@@ -2,6 +2,9 @@ import { createContext, useContext, useReducer } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+// Read backend URL from environment variable
+const API_URL = import.meta.env.VITE_BACKEND_URL;
+
 // Initial state
 const initialState = {
   expenses: [],
@@ -45,10 +48,7 @@ const EXPENSE_ACTIONS = {
 const expenseReducer = (state, action) => {
   switch (action.type) {
     case EXPENSE_ACTIONS.SET_LOADING:
-      return {
-        ...state,
-        loading: action.payload,
-      };
+      return { ...state, loading: action.payload };
     case EXPENSE_ACTIONS.SET_EXPENSES:
       return {
         ...state,
@@ -82,26 +82,13 @@ const expenseReducer = (state, action) => {
         },
       };
     case EXPENSE_ACTIONS.SET_SUMMARY:
-      return {
-        ...state,
-        summary: action.payload,
-      };
+      return { ...state, summary: action.payload };
     case EXPENSE_ACTIONS.SET_FILTERS:
-      return {
-        ...state,
-        filters: { ...state.filters, ...action.payload },
-      };
+      return { ...state, filters: { ...state.filters, ...action.payload } };
     case EXPENSE_ACTIONS.SET_PAGINATION:
-      return {
-        ...state,
-        pagination: action.payload,
-      };
+      return { ...state, pagination: action.payload };
     case EXPENSE_ACTIONS.CLEAR_EXPENSES:
-      return {
-        ...state,
-        expenses: [],
-        summary: initialState.summary,
-      };
+      return { ...state, expenses: [], summary: initialState.summary };
     default:
       return state;
   }
@@ -110,7 +97,7 @@ const expenseReducer = (state, action) => {
 // Create context
 const ExpenseContext = createContext();
 
-// Expense provider component
+// Expense provider
 export const ExpenseProvider = ({ children }) => {
   const [state, dispatch] = useReducer(expenseReducer, initialState);
 
@@ -118,18 +105,16 @@ export const ExpenseProvider = ({ children }) => {
   const getExpenses = async (customFilters = {}) => {
     try {
       dispatch({ type: EXPENSE_ACTIONS.SET_LOADING, payload: true });
-      
+
       const filters = { ...state.filters, ...customFilters };
       const queryParams = new URLSearchParams();
-      
+
       Object.entries(filters).forEach(([key, value]) => {
-        if (value && value !== 'all') {
-          queryParams.append(key, value);
-        }
+        if (value && value !== 'all') queryParams.append(key, value);
       });
-      
-      const response = await axios.get(`/api/expenses?${queryParams}`);
-      
+
+      const response = await axios.get(`${API_URL}/api/expenses?${queryParams}`);
+
       dispatch({
         type: EXPENSE_ACTIONS.SET_EXPENSES,
         payload: {
@@ -137,11 +122,10 @@ export const ExpenseProvider = ({ children }) => {
           pagination: response.data.data.pagination,
         },
       });
-      
+
       return { success: true };
     } catch (error) {
       dispatch({ type: EXPENSE_ACTIONS.SET_LOADING, payload: false });
-      
       const message = error.response?.data?.message || 'Failed to fetch expenses';
       toast.error(message);
       return { success: false, error: message };
@@ -153,17 +137,17 @@ export const ExpenseProvider = ({ children }) => {
     try {
       const filters = { ...state.filters, ...customFilters };
       const queryParams = new URLSearchParams();
-      
+
       if (filters.startDate) queryParams.append('startDate', filters.startDate);
       if (filters.endDate) queryParams.append('endDate', filters.endDate);
-      
-      const response = await axios.get(`/api/expenses/summary?${queryParams}`);
-      
+
+      const response = await axios.get(`${API_URL}/api/expenses/summary?${queryParams}`);
+
       dispatch({
         type: EXPENSE_ACTIONS.SET_SUMMARY,
         payload: response.data.data,
       });
-      
+
       return { success: true };
     } catch (error) {
       const message = error.response?.data?.message || 'Failed to fetch summary';
@@ -175,13 +159,13 @@ export const ExpenseProvider = ({ children }) => {
   // Create expense
   const createExpense = async (expenseData) => {
     try {
-      const response = await axios.post('/api/expenses', expenseData);
-      
+      const response = await axios.post(`${API_URL}/api/expenses`, expenseData);
+
       dispatch({
         type: EXPENSE_ACTIONS.ADD_EXPENSE,
         payload: response.data.data.expense,
       });
-      
+
       toast.success('Expense added successfully!');
       return { success: true, expense: response.data.data.expense };
     } catch (error) {
@@ -194,13 +178,13 @@ export const ExpenseProvider = ({ children }) => {
   // Update expense
   const updateExpense = async (id, expenseData) => {
     try {
-      const response = await axios.put(`/api/expenses/${id}`, expenseData);
-      
+      const response = await axios.put(`${API_URL}/api/expenses/${id}`, expenseData);
+
       dispatch({
         type: EXPENSE_ACTIONS.UPDATE_EXPENSE,
         payload: response.data.data.expense,
       });
-      
+
       toast.success('Expense updated successfully!');
       return { success: true, expense: response.data.data.expense };
     } catch (error) {
@@ -213,13 +197,13 @@ export const ExpenseProvider = ({ children }) => {
   // Delete expense
   const deleteExpense = async (id) => {
     try {
-      await axios.delete(`/api/expenses/${id}`);
-      
+      await axios.delete(`${API_URL}/api/expenses/${id}`);
+
       dispatch({
         type: EXPENSE_ACTIONS.DELETE_EXPENSE,
         payload: id,
       });
-      
+
       toast.success('Expense deleted successfully!');
       return { success: true };
     } catch (error) {
@@ -231,10 +215,7 @@ export const ExpenseProvider = ({ children }) => {
 
   // Set filters
   const setFilters = (filters) => {
-    dispatch({
-      type: EXPENSE_ACTIONS.SET_FILTERS,
-      payload: filters,
-    });
+    dispatch({ type: EXPENSE_ACTIONS.SET_FILTERS, payload: filters });
   };
 
   // Clear expenses
@@ -253,19 +234,13 @@ export const ExpenseProvider = ({ children }) => {
     clearExpenses,
   };
 
-  return (
-    <ExpenseContext.Provider value={value}>
-      {children}
-    </ExpenseContext.Provider>
-  );
+  return <ExpenseContext.Provider value={value}>{children}</ExpenseContext.Provider>;
 };
 
-// Custom hook to use expense context
+// Custom hook
 export const useExpense = () => {
   const context = useContext(ExpenseContext);
-  if (!context) {
-    throw new Error('useExpense must be used within an ExpenseProvider');
-  }
+  if (!context) throw new Error('useExpense must be used within an ExpenseProvider');
   return context;
 };
 
