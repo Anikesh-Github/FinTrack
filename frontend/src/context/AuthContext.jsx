@@ -3,6 +3,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 // Initial state
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 const initialState = {
   user: null,
   token: localStorage.getItem('token'),
@@ -77,7 +78,7 @@ export const AuthProvider = ({ children }) => {
     const loadUser = async () => {
       if (state.token) {
         try {
-          const response = await axios.get('/api/auth/me');
+          const response = await axios.get(`${API_URL}/api/auth/me`);
           dispatch({
             type: AUTH_ACTIONS.SET_USER,
             payload: response.data.data.user,
@@ -99,7 +100,7 @@ export const AuthProvider = ({ children }) => {
     try {
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
       
-      const response = await axios.post('/api/auth/register', userData);
+      const response = await axios.post(`${API_URL}/api/auth/register`, userData);
       
       dispatch({
         type: AUTH_ACTIONS.LOGIN_SUCCESS,
@@ -125,7 +126,7 @@ export const AuthProvider = ({ children }) => {
     try {
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
       
-      const response = await axios.post('/api/auth/login', credentials);
+      const response = await axios.post(`${API_URL}/api/auth/login`, credentials);
       
       dispatch({
         type: AUTH_ACTIONS.LOGIN_SUCCESS,
