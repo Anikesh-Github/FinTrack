@@ -1,6 +1,6 @@
 import { createContext, useContext, useReducer, useEffect } from 'react';
 import axios from 'axios';
-import toast from 'react-hot-toast';
+import toast from 'react-hot-toast';                                                                       
 
 // Initial state
 const API_URL = import.meta.env.VITE_BACKEND_URL;
