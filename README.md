@@ -47,7 +47,7 @@ This system aims to make personal finance management smarter, faster, and more a
 
 ---
 
-#🏗️ Tech Stack
+##🏗️ Tech Stack
 
 ### **Frontend**
 - React.js  
