@@ -6,6 +6,10 @@ require('dotenv').config({ path: './.env' });
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const expenseRoutes = require('./routes/expenseRoutes');
+// NEW routes (AI features)
+const ocrRoutes = require('./routes/ocrRoutes');
+const ragRoutes = require('./routes/ragRoutes');
+
 
 const app = express();
 
@@ -56,6 +60,13 @@ app.use((err, req, res, next) => {
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
   });
 });
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/expenses', expenseRoutes);
+
+// NEW AI routes
+app.use('/api/ocr', ocrRoutes);
+app.use('/api/rag', ragRoutes);
 
 // Connect to MongoDB
 const connectDB = async () => {

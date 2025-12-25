@@ -8,6 +8,7 @@ const {
   getExpenseSummary
 } = require('../controllers/expenseController');
 const authMiddleware = require('../middleware/authMiddleware');
+const { createExpenseFromOCR } = require('../controllers/expenseController');
 
 const router = express.Router();
 
@@ -18,6 +19,8 @@ router.use(authMiddleware);
 router.route('/')
   .get(getExpenses)
   .post(createExpense);
+router.route('/ocr')
+  .post(createExpenseFromOCR);
 
 router.route('/summary')
   .get(getExpenseSummary);

@@ -260,7 +260,46 @@ const getExpenseSummary = async (req, res) => {
     });
   }
 };
+// @desc    Create expense from OCR
+// @route   POST /api/expenses/ocr
+// @access  Private
+const createExpenseFromOCR = async (req, res) => {
+  try {
+    const { title, amount, category, date, note } = req.body;
 
+    const expense = await Expense.create({
+      user: req.user._id,
+      title: title || 'OCR Expense',
+      amount,
+      category,
+      date: date || new Date(),
+      note,
+      source: 'ocr'
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Expense created from OCR successfully',
+      data: { expense }
+    });
+  } catch (error) {
+    console.error('Create OCR expense error:', error);
+
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: messages
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Server error while creating OCR expense'
+    });
+  }
+};
 module.exports = {
   getExpenses,
   getExpense,
@@ -269,3 +308,4 @@ module.exports = {
   deleteExpense,
   getExpenseSummary
 };
+
