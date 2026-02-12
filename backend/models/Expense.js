@@ -17,14 +17,6 @@ const expenseSchema = new mongoose.Schema({
     required: [true, 'Amount is required'],
     min: [0.01, 'Amount must be greater than 0']
   },
-  category: {
-    type: String,
-    required: [true, 'Category is required'],
-    enum: {
-      values: ['Food', 'Transportation', 'Entertainment', 'Shopping', 'Bills', 'Healthcare', 'Education', 'Travel', 'Other'],
-      message: 'Please select a valid category'
-    }
-  },
   date: {
     type: Date,
     required: [true, 'Date is required'],
@@ -34,7 +26,39 @@ const expenseSchema = new mongoose.Schema({
     type: String,
     trim: true,
     maxlength: [500, 'Note cannot be more than 500 characters']
+  },
+  category: {
+    type: String,
+    required: [true, 'Category is required'],
+    enum: {
+      values: [
+        'Food',
+        'Transportation',
+        'Entertainment',
+        'Shopping',
+        'Bills',
+        'Healthcare',
+        'Education',
+        'Travel',
+        'Other'
+      ],
+      message: 'Please select a valid category'
+    }
+  },
+
+  // NEW — OCR metadata
+  source: {
+    type: String,
+    enum: ['manual', 'ocr'],
+    default: 'manual'
+  },
+
+  // NEW — vector embedding for RAG
+  embedding: {
+    type: [Number],
+    default: undefined
   }
+
 }, {
   timestamps: true
 });
